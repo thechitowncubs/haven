@@ -187,6 +187,29 @@ server {
 }
 ```
 
+For Apache:
+```
+<VirtualHost *:80>
+        ServerName relay..com
+
+        RewriteEngine On
+        RewriteCond %{HTTP:Upgrade} websocket [NC]
+        RewriteCond %{HTTP:Connection} upgrade [NC]
+        RewriteRule ^/?(.*) "ws://localhost:3355/$1" [P,L]
+
+        # Proxy for HTTP traffic (NIP-11 relay info page)
+        ProxyPass / http://localhost:3355/
+        ProxyPassReverse / http://localhost:3355/
+
+        # Optional: Add HSTS header for enhanced security
+        Header always set Strict-Transport-Security "max-age=63072000; includeSubDomains; preload"
+
+        # Optional: Set appropriate WebSocket headers
+        RequestHeader set Upgrade "websocket"
+        RequestHeader set Connection "Upgrade"
+</VirtualHost>
+```
+
 Replace `yourdomain.com` with your actual domain name.
 
 > [!NOTE]
